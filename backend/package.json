@@ -1,21 +1,68 @@
-{
-  "name": "sports-ai-backend",
-  "version": "1.0.0",
-  "description": "Backend do bot analista de basquete e futebol",
-  "main": "src/index.js",
-  "type": "module",
-  "scripts": {
-    "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
-  },
-  "dependencies": {
-    "axios": "^1.6.7",
-    "cors": "^2.8.5",
-    "dotenv": "^16.4.5",
-    "express": "^4.19.2"
-  },
-  "devDependencies": {
-    "nodemon": "^3.1.0"
-  }
-}
+// backend/src/index.js
+import express from "express";
+import cors from "cors";
 
+const app = express();
+const PORT = process.env.PORT || 10000;
+
+app.use(cors());
+app.use(express.json());
+
+// Rota de teste
+app.get("/", (req, res) => {
+  res.json({ status: "API do Bot Sports Analyst funcionando!" });
+});
+
+// Rota principal de análise
+app.post("/analisar", (req, res) => {
+  try {
+    const { esporte, timeA, timeB, modo } = req.body || {};
+
+    if (!esporte || !timeA || !timeB || !modo) {
+      return res.status(400).json({
+        sucesso: false,
+        erro: "Parâmetros inválidos. Envie esporte, timeA, timeB e modo.",
+      });
+    }
+
+    const esporteUpper = esporte.toUpperCase();
+
+    const textosModo = {
+      historico:
+        "Análise baseada em confrontos anteriores, forma recente e desempenho médio das equipes.",
+      "ao vivo":
+        "Análise considerando momento atual do jogo, intensidade, volume ofensivo e possíveis viradas.",
+      futuro:
+        "Projeção de tendência com base em histórico, elenco, média de gols/pontos e mando de campo.",
+    };
+
+    const textoModo =
+      textosModo[modo] ||
+      "Combinação de histórico, desempenho recente e contexto do confronto.";
+
+    const analise =
+      `Analisando ${esporteUpper} entre ${timeA} e ${timeB} no modo: ${modo}.\n` +
+      `Vou considerar dados antigos, padrão de performance e contexto recente para estimar probabilidades.\n\n` +
+      textoModo;
+
+    return res.json({
+      sucesso: true,
+      analise,
+    });
+  } catch (err) {
+    console.error("Erro internamente em /analisar:", err);
+    return res.status(500).json({
+      sucesso: false,
+      erro: "Erro interno ao gerar análise.",
+    });
+  }
+});
+
+// Fallback para rotas inexistentes (evita 200 vazio)
+app.use((req, res) => {
+  res.status(404).json({ sucesso: false, erro: "Rota não encontrada." });
+});
+
+app.listen(PORT, () => {
+  console.log(`Servidor do Sports Analyst Bot rodando na porta ${PORT}`);
+});
