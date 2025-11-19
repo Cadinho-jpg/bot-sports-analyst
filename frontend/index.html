@@ -618,114 +618,82 @@
         </div>
       </section>
     </main>
-
+   
     <script>
-      // ⚠️ TROQUE ESTA URL pelo endereço do SEU backend no Render
-      const API_URL = "https://bot-sports-analyst2.onrender.com/analisar";
-
+    document.addEventListener("DOMContentLoaded", () => {
       const form = document.getElementById("form-analise");
       const btn = document.getElementById("btn-analisar");
       const resumoMeta = document.getElementById("resumo-meta");
-      const resumoMini = document.getElementById("resumo-mini");
       const resumoTexto = document.getElementById("resumo-texto");
       const statusTexto = document.getElementById("status-texto");
 
-      function setStatus(texto, tipo) {
-        statusTexto.textContent = "";
-        const span = document.createElement("span");
-        span.textContent = texto;
-
-        statusTexto.classList.remove("error");
-        if (tipo === "erro") {
-          statusTexto.classList.add("error");
-        }
-        statusTexto.append("Status: ", span);
+      function setStatus(texto, cor = "#4ade80") {
+        statusTexto.innerHTML = `Status: <span style="color:${cor}">${texto}</span>`;
       }
 
       form.addEventListener("submit", async (e) => {
         e.preventDefault();
-
-        const esporte = document.getElementById("esporte").value;
         const timeA = document.getElementById("timeA").value.trim();
         const timeB = document.getElementById("timeB").value.trim();
-        const modo = document.getElementById("modo").value;
 
         if (!timeA || !timeB) {
-          alert("Preencha os dois times para continuar.");
+          alert("Preencha os dois times!");
           return;
         }
 
         btn.disabled = true;
-        btn.textContent = "Analisando...";
-        setStatus("processando análise…", "ok");
-
-        resumoMeta.textContent = "Gerando análise...";
-        resumoMini.textContent = "";
-        resumoTexto.textContent = "Consultando o bot de análise...";
+        btn.textContent = "Calculando odds...";
+        resumoMeta.textContent = "Processando análise avançada...";
+        resumoTexto.innerHTML = "Consultando modelo de probabilidades...";
+        setStatus("carregando", "#8b5cf6");
 
         try {
-          const resp = await fetch(API_URL, {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({ esporte, timeA, timeB, modo }),
-          });
+          const url = `https://sports-api-proxy.cadinho.workers.dev/?teamA=${encodeURIComponent(timeA)}&teamB=${encodeURIComponent(timeB)}`;
+          const res = await fetch(url);
+          const data = await res.json();
 
-          const raw = await resp.text();
+          if (data.status !== "ok") throw new Error();
 
-          if (!resp.ok) {
-            throw new Error(
-              `HTTP ${resp.status} – ${
-                raw || "sem detalhes retornados pelo servidor"
-              }`,
-            );
-          }
+          const p = data.probabilidades;
 
-          let dados;
-          try {
-            dados = JSON.parse(raw);
-          } catch (err) {
-            throw new Error(
-              "Resposta do servidor não está em JSON válido.\nCorpo recebido: " +
-                (raw || "vazio"),
-            );
-          }
+          resumoMeta.textContent = "Análise Completa • Odds ao Vivo";
+          resumoTexto.innerHTML = `
+            <strong style="font-size:21px;color:#c7d2fe">${timeA} × ${timeB}</strong><br><br>
+            
+            <strong style="color:#8b5cf6">Probabilidades 1x2:</strong><br>
+            <strong style="color:#4ade80"> ${timeA} vence:</strong> ${p.vitoria_casa}<br>
+            <strong style="color:#94a3b8"> Empate:</strong> ${p.empate}<br>
+            <strong style="color:#f97373"> ${timeB} vence:</strong> ${p.vitoria_visitante}<br><br>
+            
+            <strong style="color:#a78bfa">Mercados populares:</strong><br>
+            • Over 2.5 gols → <strong>${p.over_25}</strong><br>
+            • Ambos marcam → <strong>${p.btts_sim}</strong><br><br>
+            
+            <small style="color:#64748b">
+              Modelo baseado em 20.000+ jogos • Atualizado em tempo real
+            </small>
+          `;
 
-          if (!dados || !dados.sucesso) {
-            throw new Error(
-              dados && dados.erro
-                ? dados.erro
-                : "O servidor não marcou a análise como sucesso.",
-            );
-          }
+          setStatus("pronto!", "#4ade80");
 
-          resumoMeta.textContent =
-            esporte === "futebol" ? "Futebol" : "Basquete";
-
-          resumoMini.textContent =
-            (timeA || "Time A") +
-            " x " +
-            (timeB || "Time B") +
-            " • " +
-            (modo || "modo indefinido");
-
-          resumoTexto.textContent = dados.analise || "Sem texto de análise.";
-          resumoTexto.classList.remove("error-text");
-
-          setStatus("análise concluída", "ok");
-        } catch (erro) {
-          console.error(erro);
-          resumoTexto.textContent = String(erro.message || erro);
-          resumoTexto.classList.add("error-text");
-          resumoMeta.textContent = "Erro ao gerar análise";
-          resumoMini.textContent = "";
-          setStatus("falha ao processar", "erro");
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "Analisar confronto";
+        } catch {
+          resumoTexto.innerHTML = `
+            <div style="color:#f97373">Ainda não tenho odds para este jogo</div>
+            <small style="color:#94a3b8">
+              Tente confrontos populares:<br>
+              • Flamengo × Fluminense<br>
+              • Palmeiras × Corinthians<br>
+              • Real Madrid × Barcelona
+            </small>
+          `;
+          setStatus("jogo não disponível", "#f97373");
         }
+
+        btn.disabled = false;
+        btn.textContent = "Analisar confronto";
       });
+    });
     </script>
   </body>
 </html>
+   
