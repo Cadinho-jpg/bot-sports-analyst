@@ -44,17 +44,22 @@
 
   <pre id="resultado" style="margin-top:20px; white-space:pre-wrap;"></pre>
 
-  <script type="module">
-    import axios from "https://cdn.jsdelivr.net/npm/axios@1.6.7/+esm";
+  <!-- Axios carregado como script normal -->
+<script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
 
-    async function enviarAnalise() {
-      const esporte = document.getElementById("esporte").value;
-      const timeA = document.getElementById("timeA").value;
-      const timeB = document.getElementById("timeB").value;
-      const modo = document.getElementById("modo").value;
+<script>
+  async function enviarAnalise() {
+    const esporte = document.getElementById("esporte").value;
+    const timeA = document.getElementById("timeA").value;
+    const timeB = document.getElementById("timeB").value;
+    const modo = document.getElementById("modo").value;
 
+    const resultadoEl = document.getElementById("resultado");
+    resultadoEl.textContent = "Gerando análise...";
+
+    try {
       const resposta = await axios.post(
-        "https://https://bot-sports-analyst-1.onrender.com",
+        "https://bot-sports-analyst-1.onrender.com/analisar", // troque se sua URL for outra
         {
           esporte,
           timeA,
@@ -63,9 +68,12 @@
         }
       );
 
-      document.getElementById("resultado").textContent =
-        JSON.stringify(resposta.data, null, 2);
+      resultadoEl.textContent = JSON.stringify(resposta.data, null, 2);
+    } catch (err) {
+      console.error(err);
+      resultadoEl.textContent =
+        "Erro ao conectar com o servidor: " +
+        (err.response?.data?.error || err.message);
     }
-  </script>
-</body>
-</html>
+  }
+</script>
