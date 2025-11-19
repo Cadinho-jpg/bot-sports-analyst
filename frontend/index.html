@@ -4,162 +4,425 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sports Analyst Bot</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
   <style>
     :root {
-      --futebol: #0d8b3d;
-      --basquete: #e65c00;
-      --dark: #121212;
-      --darker: #0a0a0a;
-      --light: #ffffff;
-      --gray: #333333;
+      --bg: #040612;
+      --bg2: #090b1c;
+      --card: #111325;
+      --card-soft: #171a30;
+      --accent: #7c5cff;
+      --accent-soft: rgba(124, 92, 255, 0.12);
+      --text: #f5f5f7;
+      --muted: #9c9cb5;
+      --border: #262a40;
+      --danger: #ff4b6a;
+      --shadow-soft: 0 22px 60px rgba(0, 0, 0, 0.75);
     }
-    body {
-      font-family: 'Segoe UI', Arial, sans-serif;
-      background: linear-gradient(135deg, #0f0f0f, #1a1a1a);
-      color: #e0e0e0;
-      margin: 0;
-      padding: 20px;
-      min-height: 100vh;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      background: var(--gray);
-      border-radius: 16px;
-      padding: 24px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
-    }
-    h1 {
-      text-align: center;
-      margin: 0 0 8px 0;
-      font-size: 2.2em;
-      background: linear-gradient(90deg, var(--futebol), var(--basquete));
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    p { text-align: center; opacity: 0.8; margin-bottom: 24px; }
 
-    label {
-      display: block;
-      margin-top: 16px;
-      font-weight: 600;
+    * {
+      box-sizing: border-box;
     }
-    input, select {
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+        sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top left, #1b1336 0, transparent 55%),
+        radial-gradient(circle at bottom right, #111325 0, #040612 65%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 16px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Bola de futebol girando no fundo */
+    .bg-ball {
+      position: fixed;
+      right: -140px;
+      bottom: -140px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background:
+        radial-gradient(circle at 30% 30%, #ffffff 0, #ffffff 25%, #cfcfd9 45%, #5f6478 70%, #151728 100%);
+      box-shadow:
+        0 0 60px rgba(0, 0, 0, 0.9),
+        0 0 120px rgba(124, 92, 255, 0.35);
+      opacity: 0.16;
+      filter: saturate(1.2);
+      transform-origin: center;
+      animation: spin-ball 26s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    /* “Gomos” estilizados da bola */
+    .bg-ball::before,
+    .bg-ball::after {
+      content: "";
+      position: absolute;
+      inset: 14%;
+      border-radius: 50%;
+      border: 6px solid rgba(15, 18, 40, 0.55);
+      box-shadow: 0 0 0 5px rgba(4, 6, 18, 0.45);
+    }
+    .bg-ball::after {
+      inset: 30% 18%;
+      border-width: 5px;
+      border-style: dashed;
+      opacity: 0.75;
+    }
+
+    @keyframes spin-ball {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    .wrapper {
+      position: relative;
+      z-index: 1;
       width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: none;
-      border-radius: 8px;
-      background: #444;
-      color: white;
-      font-size: 1em;
+      max-width: 980px;
     }
-    select { cursor: pointer; }
+
+    .card {
+      background: radial-gradient(circle at top right, #202449 0, #111325 60%);
+      border-radius: 20px;
+      padding: 22px 22px 26px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(16px);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .title-block h1 {
+      margin: 0;
+      font-size: 26px;
+      letter-spacing: 0.04em;
+    }
+    .title-block h1 span {
+      color: var(--accent);
+    }
+    .subtitle {
+      margin: 6px 0 0;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      background: var(--accent-soft);
+      color: var(--accent);
+      border: 1px solid rgba(124, 92, 255, 0.55);
+      white-space: nowrap;
+    }
+
+    .content {
+      display: grid;
+      gap: 18px;
+    }
+
+    @media (min-width: 780px) {
+      .content {
+        grid-template-columns: 1.05fr 0.95fr;
+        align-items: stretch;
+      }
+    }
+
+    .panel {
+      background: linear-gradient(145deg, var(--card-soft), var(--card));
+      border-radius: 14px;
+      padding: 16px 16px 18px;
+      border: 1px solid var(--border);
+    }
+
+    .panel-title-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      gap: 8px;
+    }
+
+    .panel-title {
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #d7d7ea;
+    }
+
+    .pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid #272b42;
+      background: #070814;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .grid {
+      display: grid;
+      gap: 12px;
+    }
+    @media (min-width: 720px) {
+      .grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+      .grid .full {
+        grid-column: span 2;
+      }
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-size: 12px;
+      color: #ddddf3;
+    }
+
+    .field small {
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .field input,
+    .field select {
+      border-radius: 8px;
+      border: 1px solid #292d46;
+      background: #050716;
+      color: var(--text);
+      padding: 8px 10px;
+      font-size: 14px;
+      outline: none;
+      transition: border 0.14s ease, box-shadow 0.14s ease, background 0.14s ease;
+    }
+
+    .field input::placeholder {
+      color: #6b6f8a;
+    }
+
+    .field input:focus,
+    .field select:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 1px rgba(124, 92, 255, 0.55);
+      background: #060a1b;
+    }
+
+    .actions {
+      margin-top: 6px;
+    }
 
     button {
-      width: 100%;
-      margin-top: 28px;
-      padding: 14px;
-      background: linear-gradient(90deg, var(--futebol), var(--basquete));
-      color: white;
+      padding: 9px 24px;
+      border-radius: 999px;
       border: none;
-      border-radius: 8px;
-      font-size: 1.1em;
-      font-weight: bold;
       cursor: pointer;
-      transition: all 0.3s;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 12px 30px rgba(124, 92, 255, 0.55);
+      transition:
+        transform 0.08s ease,
+        box-shadow 0.08s ease,
+        background 0.12s ease;
     }
-    button:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.5); }
-    button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-    #resultado {
-      margin-top: 24px;
-      padding: 20px;
-      background: #1e1e1e;
-      border-radius: 12px;
-      min-height: 100px;
-      line-height: 1.6;
-      border-left: 4px solid var(--futebol);
-      transition: border-left-color 0.4s;
+    button:hover {
+      background: #8e70ff;
+      transform: translateY(-1px);
+      box-shadow: 0 16px 40px rgba(124, 92, 255, 0.7);
     }
-    .loading {
-      text-align: center;
-      color: #888;
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 8px 22px rgba(124, 92, 255, 0.5);
+    }
+
+    .footer-note {
+      margin-top: 10px;
+      font-size: 11px;
+      color: var(--muted);
+    }
+
+    .result-box {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .result-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      color: #9a9ac6;
+    }
+
+    .tag {
+      font-size: 11px;
+      padding: 3px 9px;
+      border-radius: 999px;
+      border: 1px solid #262a40;
+      background: #080a18;
+      color: var(--muted);
+      white-space: nowrap;
+    }
+
+    .result-body {
+      padding: 11px 12px;
+      border-radius: 10px;
+      background: #080918;
+      border: 1px solid #23263c;
+      min-height: 72px;
+      font-size: 14px;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    .muted {
+      color: var(--muted);
       font-style: italic;
     }
-    .spinner {
-      display: inline-block;
-      width: 20px;
-      height: 20px;
-      border: 3px solid #333;
-      border-top: 3px solid #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin-right: 10px;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
 
-    .error { color: #ff6b6b; }
-    .footer {
-      text-align: center;
-      margin-top: 30px;
-      font-size: 0.9em;
-      opacity: 0.6;
+    .loading {
+      color: #e0e0ff;
+    }
+
+    .error {
+      color: var(--danger);
+      font-weight: 500;
     }
   </style>
 </head>
+
 <body>
-  <div class="container">
-    <h1><i class="fas fa-robot"></i> Sports Analyst Bot</h1>
-    <p>IA especializada em análise de Futebol e Basquete</p>
+  <div class="bg-ball"></div>
 
-    <label>Esporte:
-      <select id="esporte" onchange="atualizarCor()">
-        <option value="futebol">⚽ Futebol</option>
-        <option value="basquete">🏀 Basquete</option>
-      </select>
-    </label>
+  <div class="wrapper">
+    <div class="card">
+      <div class="card-header">
+        <div class="title-block">
+          <h1><span>Sports</span> Analyst Bot</h1>
+          <p class="subtitle">
+            Gere análises inteligentes de confrontos de <strong>Futebol</strong> e <strong>Basquete</strong> em poucos cliques.
+          </p>
+        </div>
+        <div class="badge">Painel ao vivo • Beta</div>
+      </div>
 
-    <label>Time A (Mandante ou Time 1):
-      <input id="timeA" type="text" placeholder="Ex: Flamengo" />
-    </label>
+      <div class="content">
+        <!-- LADO ESQUERDO – FORM -->
+        <div class="panel">
+          <div class="panel-title-row">
+            <div class="panel-title">Configurar confronto</div>
+            <div class="pill">Preencha os dados do jogo</div>
+          </div>
 
-    <label>Time B (Visitante ou Time 2):
-      <input id="timeB" type="text" placeholder="Ex: Fluminense" />
-    </label>
+          <div class="grid">
+            <div class="field">
+              <label for="esporte">Esporte</label>
+              <select id="esporte">
+                <option value="futebol">Futebol</option>
+                <option value="basquete">Basquete</option>
+              </select>
+            </div>
 
-    <label>Modo de Análise:
-      <select id="modo">
-        <option value="historico">Histórico de confrontos</option>
-        <option value="ao vivo">Jogo ao vivo (em andamento)</option>
-        <option value="futuro">Próximo jogo (previsão)</option>
-      </select>
-    </label>
+            <div class="field">
+              <label for="modo">Modo de Análise</label>
+              <select id="modo">
+                <option value="historico">Histórico</option>
+                <option value="ao vivo">Ao vivo</option>
+                <option value="futuro">Futuro</option>
+              </select>
+            </div>
 
-    <button type="button" onclick="enviarAnalise()" id="btnAnalisar">
-      <i class="fas fa-search"></i> Analisar Partida
-    </button>
+            <div class="field">
+              <label for="timeA">Time A</label>
+              <input id="timeA" type="text" placeholder="Ex: Fluminense" />
+              <small>Time mandante ou principal.</small>
+            </div>
 
-    <div id="resultado">
-      Preencha os campos acima e clique em "Analisar Partida" para começar.
-    </div>
+            <div class="field">
+              <label for="timeB">Time B</label>
+              <input id="timeB" type="text" placeholder="Ex: Flamengo" />
+              <small>Time visitante ou oponente.</small>
+            </div>
 
-    <div class="footer">
-      Desenvolvido com ❤️ por quem ama esporte e IA
+            <div class="actions full">
+              <button type="button" onclick="enviarAnalise()">Analisar confronto</button>
+            </div>
+          </div>
+
+          <p class="footer-note">
+            ⚠️ As análises são apenas simulações e não garantem resultados em apostas esportivas.
+          </p>
+        </div>
+
+        <!-- LADO DIREITO – RESULTADO -->
+        <div class="panel">
+          <div class="panel-title-row">
+            <div class="panel-title">Resultado da análise</div>
+            <div class="pill">Saída do bot</div>
+          </div>
+
+          <div class="result-box">
+            <div class="result-top">
+              <div class="result-label">Resumo</div>
+              <div id="tag-info" class="tag">Aguardando dados...</div>
+            </div>
+
+            <div id="resultado" class="result-body muted">
+              Informe os times e o modo de análise ao lado e clique em “Analisar confronto”.
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
   <script>
-    const API_URL = "https://bot-sports-analyst2.onrender.com/analisar"; // ← mude se necessário
+    // 🔗 URL DA SUA API NO RENDER
+    // Se o backend tiver outro link, troque SOMENTE esta constante.
+    const API_URL = "https://bot-sports-analyst2.onrender.com/analisar";
 
-    function atualizarCor() {
-      const esporte = document.getElementById("esporte").value;
-      const cor = esporte === "basquete" ? "var(--basquete)" : "var(--futebol)";
-      document.getElementById("resultado").style.borderLeftColor = cor;
-      document.querySelector("button").style.background = esporte === "basquete" 
-        ? "linear-gradient(90deg, #e65c00, #ff8c1a)" 
-        : "linear-gradient(90deg, #0d8b3d, #34d958)";
+    function montarTagInfo(esporte, modo) {
+      const e = esporte === "futebol" ? "Futebol" : "Basquete";
+      let m = "Histórico";
+      if (modo === "ao vivo") m = "Ao vivo";
+      else if (modo === "futuro") m = "Futuro";
+      return `${e} · Modo ${m}`;
     }
 
     async function enviarAnalise() {
@@ -167,51 +430,62 @@
       const timeA = document.getElementById("timeA").value.trim();
       const timeB = document.getElementById("timeB").value.trim();
       const modo = document.getElementById("modo").value;
+
       const resultadoEl = document.getElementById("resultado");
-      const btn = document.getElementById("btnAnalisar");
+      const tagInfoEl = document.getElementById("tag-info");
 
       if (!timeA || !timeB) {
-        alert("⚠️ Por favor, preencha os dois times!");
+        alert("Preencha os dois times antes de analisar.");
         return;
       }
 
-      // UI de carregamento
-      resultadoEl.innerHTML = `<div class="loading"><div class="spinner"></div> Processando análise com IA...</div>`;
-      btn.disabled = true;
-      btn.innerHTML = '<i class="fas fa-cog fa-spin"></i> Analisando...';
+      tagInfoEl.textContent = montarTagInfo(esporte, modo);
+      resultadoEl.classList.remove("muted", "error");
+      resultadoEl.classList.add("loading");
+      resultadoEl.textContent = "Gerando análise com base no histórico e contexto do confronto...";
 
       try {
-        const resposta = await fetch(API_URL, {
+        const resp = await fetch(API_URL, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ esporte, timeA, timeB, modo })
         });
 
-        if (!resposta.ok) throw new Error(`Erro ${resposta.status}`);
+        const raw = await resp.text(); // lê SEMPRE como texto
 
-        const dados = await resposta.json();
-
-        // Exibe a análise de forma bonita (ajuste conforme o formato do seu backend)
-        if (dados.analise || dados.resultado) {
-          resultadoEl.innerHTML = `
-            <strong>${timeA} × ${timeB}</strong><br><br>
-            ${dados.analise || dados.resultado || dados.texto || JSON.stringify(dados, null, 2)}
-          `.trim();
-        } else {
-          resultadoEl.innerHTML = "<pre>" + JSON.stringify(dados, null, 2) + "</pre>";
+        if (!resp.ok) {
+          throw new Error(`HTTP ${resp.status} – ${raw || "sem detalhes na resposta"}`);
         }
 
+        let dados;
+        try {
+          dados = JSON.parse(raw);
+        } catch (e) {
+          throw new Error(
+            "Resposta do servidor não está em JSON válido.\nCorpo recebido: " +
+            (raw || "vazio")
+          );
+        }
+
+        resultadoEl.classList.remove("loading");
+        resultadoEl.classList.remove("error");
+
+        if (dados && dados.analise) {
+          resultadoEl.textContent = dados.analise;
+        } else {
+          resultadoEl.textContent =
+            "O servidor respondeu, mas não enviou o campo 'analise'. Resposta completa:\n" +
+            raw;
+          resultadoEl.classList.add("muted");
+        }
       } catch (erro) {
         console.error(erro);
-        resultadoEl.innerHTML = `<span class="error">❌ Erro ao conectar com o servidor:<br>${erro.message}</span>`;
-      } finally {
-        btn.disabled = false;
-        btn.innerHTML = '<i class="fas fa-search"></i> Analisar Partida';
+        resultadoEl.classList.remove("loading");
+        resultadoEl.classList.add("error");
+        resultadoEl.textContent =
+          "Erro ao conectar com o servidor: " + erro.message;
       }
     }
-
-    // Cor inicial
-    atualizarCor();
   </script>
 </body>
 </html>
