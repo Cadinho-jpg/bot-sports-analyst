@@ -4,76 +4,107 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sports Analyst Bot</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #ffffff;
+      padding: 20px;
+    }
+    label {
+      display: block;
+      margin-top: 10px;
+    }
+    input, select {
+      margin-top: 4px;
+      padding: 6px;
+      width: 220px;
+      max-width: 100%;
+    }
+    button {
+      margin-top: 20px;
+      padding: 10px 20px;
+      cursor: pointer;
+    }
+    #resultado {
+      margin-top: 20px;
+      padding: 10px;
+      background: #1e1e1e;
+      border-radius: 4px;
+      min-height: 60px;
+      white-space: pre-wrap;
+    }
+  </style>
 </head>
 
-<body style="font-family: Arial; background:#121212; color:white; padding:20px;">
+<body>
   <h1>Sports Analyst Bot</h1>
   <p>Analisador de jogos de Basquete e Futebol</p>
 
-  <div style="margin-top:20px;">
-    <label>Esporte:</label>
+  <label>Esporte:
     <select id="esporte">
       <option value="futebol">Futebol</option>
       <option value="basquete">Basquete</option>
     </select>
-  </div>
+  </label>
 
-  <div style="margin-top:10px;">
-    <label>Time A:</label>
-    <input id="timeA" type="text" placeholder="Ex: Lakers" />
-  </div>
+  <label>Time A:
+    <input id="timeA" type="text" placeholder="Ex: Flamengo" />
+  </label>
 
-  <div style="margin-top:10px;">
-    <label>Time B:</label>
-    <input id="timeB" type="text" placeholder="Ex: Celtics" />
-  </div>
+  <label>Time B:
+    <input id="timeB" type="text" placeholder="Ex: Fluminense" />
+  </label>
 
-  <div style="margin-top:10px;">
-    <label>Modo de Análise:</label>
+  <label>Modo de Análise:
     <select id="modo">
       <option value="historico">Histórico</option>
       <option value="ao vivo">Ao vivo</option>
       <option value="futuro">Futuro</option>
     </select>
-  </div>
+  </label>
 
-  <button onclick="enviarAnalise()" 
-    style="margin-top:20px; padding:10px 20px; cursor:pointer;">
-    Analisar
-  </button>
+  <button type="button" onclick="enviarAnalise()">Analisar</button>
 
-  <pre id="resultado" style="margin-top:20px; white-space:pre-wrap;"></pre>
+  <pre id="resultado"></pre>
 
-  <!-- Axios carregado como script normal -->
-<script src="https://cdn.jsdelivr.net/npm/axios@1.6.7/dist/axios.min.js"></script>
+  <script>
+    // ⚠️ TROQUE AQUI se sua URL do backend for diferente
+    const API_URL = "https://bot-sports-analyst2.onrender.com/analisar";
 
-<script>
-  async function enviarAnalise() {
-    const esporte = document.getElementById("esporte").value;
-    const timeA = document.getElementById("timeA").value;
-    const timeB = document.getElementById("timeB").value;
-    const modo = document.getElementById("modo").value;
+    async function enviarAnalise() {
+      const esporte = document.getElementById("esporte").value;
+      const timeA = document.getElementById("timeA").value.trim();
+      const timeB = document.getElementById("timeB").value.trim();
+      const modo = document.getElementById("modo").value;
 
-    const resultadoEl = document.getElementById("resultado");
-    resultadoEl.textContent = "Gerando análise...";
+      const resultadoEl = document.getElementById("resultado");
 
-    try {
-      const resposta = await axios.post(
-        "https://bot-sports-analyst-1.onrender.com/analisar", // troque se sua URL for outra
-        {
-          esporte,
-          timeA,
-          timeB,
-          modo
-        }
-      );
+      if (!timeA || !timeB) {
+        alert("Preencha os dois times antes de analisar.");
+        return;
+      }
 
-      resultadoEl.textContent = JSON.stringify(resposta.data, null, 2);
-    } catch (err) {
-      console.error(err);
-      resultadoEl.textContent =
-        "Erro ao conectar com o servidor: " +
-        (err.response?.data?.error || err.message);
+      resultadoEl.textContent = "Gerando análise...";
+
+      try {
+        const resposta = await fetch(API_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ esporte, timeA, timeB, modo })
+        });
+
+        const dados = await resposta.json();
+
+        resultadoEl.textContent = JSON.stringify(dados, null, 2);
+      } catch (erro) {
+        console.error(erro);
+        resultadoEl.textContent =
+          "Erro ao conectar com o servidor: " + erro.message;
+      }
     }
-  }
-</script>
+  </script>
+</body>
+</html>
