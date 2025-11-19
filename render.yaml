@@ -1,1 +1,28 @@
+services:
+  - type: web
+    name: sports-analyst-backend
+    env: node
+    rootDir: backend
+    buildCommand: "npm install"
+    startCommand: "npm start"
+    plan: free
+    autoDeploy: true
+
+  - type: web
+    name: sports-analyst-frontend
+    env: static
+    rootDir: frontend
+    buildCommand: "npm install && npm run build"
+    staticPublishPath: "dist"
+    plan: free
+    autoDeploy: true
+
+  - type: worker
+    name: sports-analyst-worker
+    env: node
+    rootDir: worker
+    buildCommand: "npm install || true"
+    startCommand: "node worker.js"
+    plan: free
+    autoDeploy: true
 
