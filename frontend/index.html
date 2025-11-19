@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sports Analyst Bot</title>
+</head>
+
+<body style="font-family: Arial; background:#121212; color:white; padding:20px;">
+  <h1>Sports Analyst Bot</h1>
+  <p>Analisador de jogos de Basquete e Futebol</p>
+
+  <div style="margin-top:20px;">
+    <label>Esporte:</label>
+    <select id="esporte">
+      <option value="futebol">Futebol</option>
+      <option value="basquete">Basquete</option>
+    </select>
+  </div>
+
+  <div style="margin-top:10px;">
+    <label>Time A:</label>
+    <input id="timeA" type="text" placeholder="Ex: Lakers" />
+  </div>
+
+  <div style="margin-top:10px;">
+    <label>Time B:</label>
+    <input id="timeB" type="text" placeholder="Ex: Celtics" />
+  </div>
+
+  <div style="margin-top:10px;">
+    <label>Modo de Análise:</label>
+    <select id="modo">
+      <option value="historico">Histórico</option>
+      <option value="ao vivo">Ao vivo</option>
+      <option value="futuro">Futuro</option>
+    </select>
+  </div>
+
+  <button onclick="enviarAnalise()" 
+    style="margin-top:20px; padding:10px 20px; cursor:pointer;">
+    Analisar
+  </button>
+
+  <pre id="resultado" style="margin-top:20px; white-space:pre-wrap;"></pre>
+
+  <script type="module">
+    import axios from "https://cdn.jsdelivr.net/npm/axios@1.6.7/+esm";
+
+    async function enviarAnalise() {
+      const esporte = document.getElementById("esporte").value;
+      const timeA = document.getElementById("timeA").value;
+      const timeB = document.getElementById("timeB").value;
+      const modo = document.getElementById("modo").value;
+
+      const resposta = await axios.post(
+        "https://SEU-BACKEND.onrender.com/analisar",
+        {
+          esporte,
+          timeA,
+          timeB,
+          modo
+        }
+      );
+
+      document.getElementById("resultado").textContent =
+        JSON.stringify(resposta.data, null, 2);
+    }
+  </script>
+</body>
+</html>
